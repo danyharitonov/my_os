@@ -77,3 +77,14 @@ log = {"id": 41, "call_name": "sys_exec", "args": '{"name": "compiler", "priorit
 ## 5. Диаграмма компонентов
 
 ![Диаграмма компонентов](02_component_diagram.png)
+
+## 6. Реализация (день 2)
+
+- `syscalls.py`: `log_syscall()` + 16 вызовов; журналирование и перехват ошибок
+  вынесены в декоратор `@syscall`, поэтому каждая функция автоматически
+  вызывает `log_syscall()`.
+- `shell.py`: новые команды `whoami`, `login`, `logout`, `create`, `cat`, `rm`,
+  `ls`, `run`, `ps`, `tick`, `kill`, `mem`, `logs`, `shutdown`; приглашение
+  меняется с `guest@my_os` на `<логин>@my_os` после входа.
+- Проверка: `python -m src.syscalls` добавляет в журнал 4 записи
+  (`sys_login`, `sys_whoami`, `sys_create_file`, `sys_ps`).

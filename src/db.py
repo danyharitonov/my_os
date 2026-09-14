@@ -23,6 +23,8 @@ CREATE TABLE IF NOT EXISTS processes (
     state      TEXT NOT NULL DEFAULT 'new',
     owner      TEXT NOT NULL,
     memory_kb  INTEGER NOT NULL DEFAULT 0,
+    priority   INTEGER NOT NULL DEFAULT 1,
+    cpu_ticks  INTEGER NOT NULL DEFAULT 0,
     created_at TEXT DEFAULT (datetime('now', 'localtime'))
 );
 CREATE TABLE IF NOT EXISTS files (
@@ -66,10 +68,19 @@ def close_connection():
         _conn = None
 
 
+def _migrate(conn):
+    """Добавляет столбцы дня 2 в базу, созданную на дне 1."""
+    have = {r[1] for r in conn.execute("PRAGMA table_info(processes)")}
+    for column in ("priority INTEGER NOT NULL DEFAULT 1", "cpu_ticks INTEGER NOT NULL DEFAULT 0"):
+        if column.split()[0] not in have:
+            conn.execute(f"ALTER TABLE processes ADD COLUMN {column}")
+
+
 def init_db():
     """Создаёт таблицы и учётные записи по умолчанию. Повторный вызов безопасен."""
     conn = get_connection()
     conn.executescript(SCHEMA)
+    _migrate(conn)
     for login, password, role in config.DEFAULT_ACCOUNTS:
         conn.execute(
             "INSERT OR IGNORE INTO users(login, pwd_hash, role) VALUES (?, ?, ?)",
