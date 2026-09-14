@@ -104,7 +104,10 @@ class Kernel:
                 raise KernelError("нет процесса, которому выделять память")
             pid = own[-1]["pid"]
         self._process(pid)
-        return memory.grow(pid, size)
+        total = memory.grow(pid, size)
+        if total == -1:
+            raise KernelError(f"недостаточно памяти: свободно {memory.free_kb()} КБ")
+        return total
 
     def ps(self):
         return self.scheduler.snapshot()
