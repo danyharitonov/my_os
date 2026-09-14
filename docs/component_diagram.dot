@@ -1,0 +1,19 @@
+digraph my_os {
+  rankdir=TB; nodesep=0.35; ranksep=0.55;
+  node [shape=box, style="rounded,filled", fontname="DejaVu Sans", fontsize=12, width=1.6];
+  edge [color="#444444", arrowsize=0.8];
+  shell    [label="shell.py\nоболочка", fillcolor="#dbeafe"];
+  syscalls [label="syscalls.py\nсистемные вызовы", fillcolor="#fde68a"];
+  kernel   [label="kernel.py\nядро (Kernel)", fillcolor="#fca5a5"];
+  scheduler[label="scheduler.py\nпланировщик RR", fillcolor="#bbf7d0"];
+  memory   [label="memory.py\nпамять", fillcolor="#bbf7d0"];
+  fs       [label="fs.py\nфайловая система", fillcolor="#bbf7d0"];
+  auth     [label="auth.py\nпользователи", fillcolor="#bbf7d0"];
+  db       [label="db.py\nSQLite os.sqlite", fillcolor="#e5e7eb", shape=cylinder];
+  subgraph cluster_u {label="User Space"; style=dashed; fontname="DejaVu Sans"; shell;}
+  subgraph cluster_k {label="Kernel Space"; style=dashed; fontname="DejaVu Sans"; kernel; scheduler; memory; fs; auth;}
+  shell -> syscalls -> kernel;
+  kernel -> scheduler; kernel -> memory; kernel -> fs; kernel -> auth;
+  scheduler -> db; memory -> db; fs -> db; auth -> db;
+  {rank=same; scheduler; memory; fs; auth;}
+}
